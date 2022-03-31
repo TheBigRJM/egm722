@@ -23,7 +23,20 @@ plt.ion()
 
 # load the necessary data here and transform to a UTM projection
 
+data_folder = 'D://UlsterProgramming//egm722//Week3//data_files//'
+
+wards = gpd.read_file(data_folder + 'NI_Wards.shp')
+counties = gpd.read_file(data_folder + 'Counties.shp')
+
+wards = wards.to_crs(epsg=2157)
+counties = counties.to_crs(epsg=2157)
+
 # your analysis goes here...
+join = gpd.sjoin(counties, wards, how='inner', lsuffix='left', rsuffix='right')
+print(join.groupby(['CountyName'])['Population'].sum())
+
+
+#.
 
 # ---------------------------------------------------------------------------------------------------------------------
 # below here, you may need to modify the script somewhat to create your map.
