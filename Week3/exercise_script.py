@@ -21,7 +21,7 @@ plt.ion()
 # in this section, write the script to load the data and complete the main part of the analysis.
 # try to print the results to the screen using the format method demonstrated in the workbook
 
-# load the necessary data here and transform to a UTM projection
+# load the necessary data here and transform to a UTM projection (Additional Ex. 1)
 
 data_folder = 'D://UlsterProgramming//egm722//Week3//data_files//'
 
@@ -33,14 +33,16 @@ counties = counties.to_crs(epsg=2157)
 
 # your analysis goes here...
 join = gpd.sjoin(counties, wards, how='inner', lsuffix='left', rsuffix='right')
-print(join.groupby(['CountyName'])['Population'].sum())
+print(join.groupby(['CountyName'])['Population'].sum())  # (Additional ex. 2) Prints the sum of population per county
+# \(including potential overlaps)
 
-
-#.
+print('Max population Ward', wards.max(), 'Min population Ward', wards.min())   # (Additional Ex 2) Prints the wards
+# with minimum and maximum populations from list
 
 # ---------------------------------------------------------------------------------------------------------------------
 # below here, you may need to modify the script somewhat to create your map.
 # create a crs using ccrs.UTM() that corresponds to our CRS
+# Additional Ex 3.
 myCRS = ccrs.UTM(29)
 # create a figure of size 10x10 (representing the page size in inches
 fig, ax = plt.subplots(1, 1, figsize=(10, 10), subplot_kw=dict(projection=myCRS))
@@ -68,4 +70,4 @@ county_handles = generate_handles([''], ['none'], edge='r')
 ax.legend(county_handles, ['County Boundaries'], fontsize=12, loc='upper left', framealpha=1)
 
 # save the figure
-# fig.savefig('sample_map.png', dpi=300, bbox_inches='tight')
+fig.savefig('sample_map.png', dpi=300, bbox_inches='tight')
