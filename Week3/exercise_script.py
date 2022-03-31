@@ -39,6 +39,11 @@ print(join.groupby(['CountyName'])['Population'].sum())  # (Additional ex. 2) Pr
 print('Max population Ward', wards.max(), 'Min population Ward', wards.min())   # (Additional Ex 2) Prints the wards
 # with minimum and maximum populations from list
 
+for i in join['ward'].unique():
+    join.count(['CountyName']).unique
+
+
+
 # ---------------------------------------------------------------------------------------------------------------------
 # below here, you may need to modify the script somewhat to create your map.
 # create a crs using ccrs.UTM() that corresponds to our CRS
