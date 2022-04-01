@@ -31,18 +31,34 @@ counties = gpd.read_file(data_folder + 'Counties.shp')
 wards = wards.to_crs(epsg=2157)
 counties = counties.to_crs(epsg=2157)
 
-# your analysis goes here...
 join = gpd.sjoin(counties, wards, how='inner', lsuffix='left', rsuffix='right')
-print(join.groupby(['CountyName'])['Population'].sum())  # (Additional ex. 2) Prints the sum of population per county
+
+# your analysis goes here...
+
+# (Additional ex. 2) Prints the sum of population per county
 # \(including potential overlaps)
+print(join.groupby(['CountyName'])['Population'].sum())
 
-print('Max population Ward', wards.max(), 'Min population Ward', wards.min())   # (Additional Ex 2) Prints the wards
+# (Additional Ex 2) Prints the wards
 # with minimum and maximum populations from list
-
-for i in join['ward'].unique():
-    join.count(['CountyName']).unique
+print('Max population Ward', wards.max(), 'Min population Ward', wards.min())
 
 
+#Work out the number, names and populations of wards in multiple counties
+wards_overlap = join.duplicated(subset=['CountyName', 'Ward'], keep=False)
+#for i in join.unique():
+
+#for i, row in wards_overlap():
+
+
+## Create population density columns in the Wards shapefile
+for i, row in wards.iterrows(): # iterate over each row in the GeoDataFrame
+    wards.loc[i, 'Area_KMsq'] = row['geometry'].area / 1000 # assign the row's geometry area to a new column, Area
+
+for i, row in wards.iterrows():# iterate over each row in the GeoDataFrame
+    wards.loc[i, 'PopDen'] = row['Population'] / row['Area_KMsq'] # create new column PopDen, assign value by Area/Pop
+
+# print(wards.head()) # print the updated GeoDataFrame to see the changes
 
 # ---------------------------------------------------------------------------------------------------------------------
 # below here, you may need to modify the script somewhat to create your map.
@@ -64,8 +80,11 @@ divider = make_axes_locatable(ax)
 cax = divider.append_axes("right", size="5%", pad=0.1, axes_class=plt.Axes)
 
 # plot the ward data into our axis, using
-ward_plot = wards.plot(column='Population', ax=ax, vmin=1000, vmax=8000, cmap='viridis',
-                       legend=True, cax=cax, legend_kwds={'label': 'Resident Population'})
+#ward_plot = wards.plot(column='Population', ax=ax, vmin=1000, vmax=8000, cmap='viridis',
+#                       legend=True, cax=cax, legend_kwds={'label': 'Resident Population'})
+
+ward_plot = wards.plot(column='PopDen', ax=ax, vmin=0, vmax=12, cmap='viridis',
+                       legend=True, cax=cax, legend_kwds={'label': 'Population Density (residents per sqkm)'})
 
 county_outlines = ShapelyFeature(counties['geometry'], myCRS, edgecolor='r', facecolor='none')
 
