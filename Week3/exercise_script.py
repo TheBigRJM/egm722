@@ -37,10 +37,10 @@ join = gpd.sjoin(counties, wards, how='inner', lsuffix='left', rsuffix='right')
 # your analysis goes here...
 # (Additional ex. 1-2-1) Prints the sum of population per county (including potential ward overlaps)
 countyPop = join.groupby(['CountyName'])['Population'].sum()
-print(countyPop)
 
 # (Additional x. 1-2-2 - print max/min county pop'n values)
-
+print('County with maximum population is:', countyPop.idxmax(), countyPop.max())
+print('County with minimum population is:', countyPop.idxmin(), countyPop.min())
 
 # (Additional Ex. 2-2) Prints the wards with minimum and maximum populations from list
 print('Max population Ward', wards.max(), 'Min population Ward', wards.min())
