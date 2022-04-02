@@ -1,3 +1,4 @@
+import pandas as pd
 import geopandas as gpd
 import matplotlib.pyplot as plt
 from mpl_toolkits.axes_grid1 import make_axes_locatable
@@ -21,7 +22,7 @@ plt.ion()
 # in this section, write the script to load the data and complete the main part of the analysis.
 # try to print the results to the screen using the format method demonstrated in the workbook
 
-# load the necessary data here and transform to a UTM projection (Additional Ex. 1)
+# load the necessary data here and transform to a UTM projection (Additional Ex. 1-1)
 
 data_folder = 'D://UlsterProgramming//egm722//Week3//data_files//'
 
@@ -34,26 +35,31 @@ counties = counties.to_crs(epsg=2157)
 join = gpd.sjoin(counties, wards, how='inner', lsuffix='left', rsuffix='right')
 
 # your analysis goes here...
+# (Additional ex. 1-2-1) Prints the sum of population per county (including potential ward overlaps)
+countyPop = join.groupby(['CountyName'])['Population'].sum()
+print(countyPop)
 
-# (Additional ex. 2) Prints the sum of population per county
-# \(including potential overlaps)
-print(join.groupby(['CountyName'])['Population'].sum())
+# (Additional x. 1-2-2 - print max/min county pop'n values)
 
-# (Additional Ex 2) Prints the wards
-# with minimum and maximum populations from list
+
+# (Additional Ex. 2-2) Prints the wards with minimum and maximum populations from list
 print('Max population Ward', wards.max(), 'Min population Ward', wards.min())
 
 
-#Work out the number, names and populations of wards in multiple counties
-wards_overlap = join.duplicated(subset=['CountyName', 'Ward'], keep=False)
-#for i in join.unique():
+# (Additional Ex. 2-1) Work out the number, names and populations of wards in multiple counties
+dfObj = pd.DataFrame(join)
+duplicateDFRow = dfObj[dfObj.duplicated(['Ward'])]
+uniqueObj = duplicateDFRow.Ward.unique()
 
-#for i, row in wards_overlap():
+sumUnique = dfObj.loc[dfObj['Ward'].isin(uniqueObj), 'Population'].sum()
+
+print(list(uniqueObj))
+print('Sum of populations from Wards in more than one county', sumUnique)
 
 
-## Create population density columns in the Wards shapefile
+# Create population density columns in the Wards shapefile
 for i, row in wards.iterrows(): # iterate over each row in the GeoDataFrame
-    wards.loc[i, 'Area_KMsq'] = row['geometry'].area / 1000 # assign the row's geometry area to a new column, Area
+    wards.loc[i, 'Area_KMsq'] = row['geometry'].area / 1000 # assign the row's geometry area to a new column, Area_KMsq
 
 for i, row in wards.iterrows():# iterate over each row in the GeoDataFrame
     wards.loc[i, 'PopDen'] = row['Population'] / row['Area_KMsq'] # create new column PopDen, assign value by Area/Pop
