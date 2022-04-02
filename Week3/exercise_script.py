@@ -29,8 +29,8 @@ data_folder = 'D://UlsterProgramming//egm722//Week3//data_files//'
 wards = gpd.read_file(data_folder + 'NI_Wards.shp')
 counties = gpd.read_file(data_folder + 'Counties.shp')
 
-wards = wards.to_crs(epsg=2157)
-counties = counties.to_crs(epsg=2157)
+wards = wards.to_crs(epsg=32629)
+counties = counties.to_crs(epsg=32629)
 
 join = gpd.sjoin(counties, wards, how='inner', lsuffix='left', rsuffix='right')
 
@@ -43,8 +43,8 @@ print('County with maximum population is:', countyPop.idxmax(), countyPop.max())
 print('County with minimum population is:', countyPop.idxmin(), countyPop.min())
 
 # (Additional Ex. 2-2) Prints the wards with minimum and maximum populations from list
-print('Max population Ward', wards.max(), 'Min population Ward', wards.min())
-
+print('Max population Ward', wards.max())
+print('Min population Ward', wards.min())
 
 # (Additional Ex. 2-1) Work out the number, names and populations of wards in multiple counties
 dfObj = pd.DataFrame(join)
