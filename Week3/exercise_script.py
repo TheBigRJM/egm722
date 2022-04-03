@@ -53,7 +53,8 @@ uniqueObj = duplicateDFRow.Ward.unique()
 
 sumUnique = dfObj.loc[dfObj['Ward'].isin(uniqueObj), 'Population'].sum()
 
-print(list(uniqueObj))
+print('Total number of wards which are in more than one county', len(uniqueObj))
+print('List of wards which are in more than one county', list(uniqueObj))
 print('Sum of populations from Wards in more than one county', sumUnique)
 
 
