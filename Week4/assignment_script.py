@@ -92,14 +92,49 @@ ax = plt.axes(projection=ccrs.Mercator())  # finally, create an axes object in t
 outline_feature = ShapelyFeature(outline['geometry'], myCRS, edgecolor='k', facecolor='w')
 
 xmin, ymin, xmax, ymax = outline.total_bounds
-ax.add_feature(outline_feature) # add the features we've created to the map.
+#ax.add_feature(outline_feature) # add the features we've created to the map.
 
 # using the boundary of the shapefile features, zoom the map to our area of interest
 ax.set_extent([xmin, xmax, ymin, ymax], crs=myCRS) # because total_bounds gives output as xmin, ymin, xmax, ymax,
 # but set_extent takes xmin, xmax, ymin, ymax, we re-order the coordinates here.
 
-# pick colors, add features to the map
-county_colors = ['firebrick', 'seagreen', 'royalblue', 'coral', 'violet', 'cornsilk']
+#Add NI image to basemap
+img_display(img, ax, [1,2,3])
 
+# next, add the municipal outlines to the map using the colors that we've picked.
+# here, we're iterating over the list of names we created above
+# we're also setting the edge color to be black, with a line width of 0.5 pt.
+# Feel free to experiment with different colors and line widths.
+county_feat = ShapelyFeature(counties['geometry'], myCRS,
+                    edgecolor='r',
+                    facecolor='none',
+                    linewidth=1,
+                    alpha=1)
+ax.add_feature(county_feat)
 
-img_display(dataset,ax, 1,2,3)
+# ShapelyFeature creates a polygon, so for point data we can just use ax.plot()
+town = towns[towns['town_city'] == 0]
+city = towns[towns['town_city'] == 1]
+
+town_handle = ax.plot(town.geometry.x, town.geometry.y, 's', color='0.5', ms=6, transform=myCRS)
+city_handle = ax.plot(city.geometry.x, city.geometry.y, 'D', color='m', ms=6, transform=myCRS)
+
+# generate a list of handles for the county datasets
+county_handles = generate_handles(counties, colors='none', edge='r', alpha=0)
+
+# ax.legend() takes a list of handles and a list of labels corresponding to the objects you want to add to the legend
+handles = county_handles + town_handle + city_handle
+labels = ['Counties', 'Towns', 'Cities']
+
+leg = ax.legend(handles, labels, title='Legend', title_fontsize=14,
+                 fontsize=12, loc='upper left', frameon=True, framealpha=1)
+
+gridlines = ax.gridlines(draw_labels=True,
+                         xlocs=[-8, -7.5, -7, -6.5, -6, -5.5],
+                         ylocs=[54, 54.5, 55, 55.5])
+
+gridlines.left_labels = False
+gridlines.bottom_labels = False
+ax.set_extent([xmin, xmax, ymin, ymax], crs=myCRS)
+
+myFig.savefig('map.png', bbox_inches='tight', dpi=300)
