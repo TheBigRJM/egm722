@@ -23,12 +23,10 @@ plt.ion()
 # try to print the results to the screen using the format method demonstrated in the workbook
 
 # load the necessary data here and transform to a UTM projection (Additional Ex. 1-1)
-
 data_folder = 'D://UlsterProgramming//egm722//Week3//data_files//'
 
 wards = gpd.read_file(data_folder + 'NI_Wards.shp')
 counties = gpd.read_file(data_folder + 'Counties.shp')
-
 wards = wards.to_crs(epsg=32629)
 counties = counties.to_crs(epsg=32629)
 
@@ -47,25 +45,23 @@ print('Max population Ward', wards.max())
 print('Min population Ward', wards.min())
 
 # (Additional Ex. 2-1) Work out the number, names and populations of wards in multiple counties
-dfObj = pd.DataFrame(join)
-duplicateDFRow = dfObj[dfObj.duplicated(['Ward'])]
-uniqueObj = duplicateDFRow.Ward.unique()
-
-sumUnique = dfObj.loc[dfObj['Ward'].isin(uniqueObj), 'Population'].sum()
+dfObj = pd.DataFrame(join) # ensure that the joined file is a dataframe and assign to dfObj
+duplicateDFRow = dfObj[dfObj.duplicated(['Ward'])] # select rows which are duplicates based on the Ward column
+uniqueObj = duplicateDFRow.Ward.unique() # return unique wards (i.e. remove duplicates)
+sumUnique = dfObj.loc[dfObj['Ward'].isin(uniqueObj), 'Population'].sum() # sum the population of wards in multiple/
+# counties based on unique wards
 
 print('Total number of wards which are in more than one county', len(uniqueObj))
 print('List of wards which are in more than one county', list(uniqueObj))
 print('Sum of populations from Wards in more than one county', sumUnique)
-
 
 # Create population density columns in the Wards shapefile
 for i, row in wards.iterrows(): # iterate over each row in the GeoDataFrame
     wards.loc[i, 'Area_KMsq'] = row['geometry'].area / 1000 # assign the row's geometry area to a new column, Area_KMsq
 
 for i, row in wards.iterrows():# iterate over each row in the GeoDataFrame
-    wards.loc[i, 'PopDen'] = row['Population'] / row['Area_KMsq'] # create new column PopDen, assign value by Area/Pop
+    wards.loc[i, 'PopDen'] = row['Population'] / row['Area_KMsq'] # create new column PopDen, assign value by POp/Area
 
-# print(wards.head()) # print the updated GeoDataFrame to see the changes
 
 # ---------------------------------------------------------------------------------------------------------------------
 # below here, you may need to modify the script somewhat to create your map.
