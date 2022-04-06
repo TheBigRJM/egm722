@@ -9,7 +9,7 @@ from cartopy.feature import ShapelyFeature
 import matplotlib.patches as mpatches
 
 
-def generate_handles(labels, colors, edge='k', alpha=1):
+def generate_handles(labels, colors, edge='r', alpha=1):
     lc = len(colors)  # get the length of the color list
     handles = []
     for i in range(len(labels)):
@@ -71,14 +71,13 @@ with rio.open(data_folder + '/NI_Mosaic.tif') as dataset:
 
 # your code goes here!
 
+w2data_folder = 'D://UlsterProgramming//egm722//Week2//data_files//'
 
-
-outline = gpd.read_file('Week2/data_files/NI_outline.shp')
-towns = gpd.read_file('Week2/data_files/Towns.shp')
-water = gpd.read_file('Week2/data_files/Water.shp')
-rivers = gpd.read_file('Week2/data_files/Rivers.shp')
-counties = gpd.read_file('Week2/data_files/Counties.shp')
-
+outline = gpd.read_file(w2data_folder + 'NI_outline.shp')
+towns = gpd.read_file(w2data_folder + 'Towns.shp')
+water = gpd.read_file(w2data_folder + 'Water.shp')
+rivers = gpd.read_file(w2data_folder + 'Rivers.shp')
+counties = gpd.read_file(w2data_folder + 'counties.shp')
 
 # create a figure of size 10x10 (representing the page size in inches)
 myFig = plt.figure(figsize=(10, 10))
@@ -89,7 +88,7 @@ ax = plt.axes(projection=ccrs.Mercator())  # finally, create an axes object in t
 # projection, where we can actually plot our data.
 
 # first, we just add the outline of Northern Ireland using cartopy's ShapelyFeature
-outline_feature = ShapelyFeature(outline['geometry'], myCRS, edgecolor='k', facecolor='w')
+#outline_feature = ShapelyFeature(outline['geometry'], myCRS, edgecolor='k', facecolor='w')
 
 xmin, ymin, xmax, ymax = outline.total_bounds
 #ax.add_feature(outline_feature) # add the features we've created to the map.
@@ -98,19 +97,23 @@ xmin, ymin, xmax, ymax = outline.total_bounds
 ax.set_extent([xmin, xmax, ymin, ymax], crs=myCRS) # because total_bounds gives output as xmin, ymin, xmax, ymax,
 # but set_extent takes xmin, xmax, ymin, ymax, we re-order the coordinates here.
 
-#Add NI image to basemap
-img_display(img, ax, [1,2,3])
+# pick colors, add features to the map
+#county_colors = ['firebrick', 'seagreen', 'royalblue', 'coral', 'violet', 'cornsilk']
+
+# get a list of unique names for the county boundaries
+#county_names = list(counties.CountyName.unique())
+#county_names.sort()  # sort the counties alphabetically by name
 
 # next, add the municipal outlines to the map using the colors that we've picked.
 # here, we're iterating over the list of names we created above
 # we're also setting the edge color to be black, with a line width of 0.5 pt.
 # Feel free to experiment with different colors and line widths.
-county_feat = ShapelyFeature(counties['geometry'], myCRS,
-                    edgecolor='r',
-                    facecolor='none',
-                    linewidth=1,
-                    alpha=1)
-ax.add_feature(county_feat)
+counties = ShapelyFeature(counties['geometry'], myCRS,
+                          edgecolor='r',
+                          facecolor='none',
+                          linewidth=1,
+                          alpha=1)
+ax.add_feature(counties)
 
 # ShapelyFeature creates a polygon, so for point data we can just use ax.plot()
 town = towns[towns['town_city'] == 0]
@@ -120,7 +123,11 @@ town_handle = ax.plot(town.geometry.x, town.geometry.y, 's', color='0.5', ms=6, 
 city_handle = ax.plot(city.geometry.x, city.geometry.y, 'D', color='m', ms=6, transform=myCRS)
 
 # generate a list of handles for the county datasets
-county_handles = generate_handles(counties, colors='none', edge='r', alpha=0)
+county_handles = generate_handles('counties', colors='0', edge='r', alpha=1)
+town_handle = generate_handles('s', colors='0.5', alpha=1)
+
+# update county_names to take it out of uppercase text
+#nice_names = [name.title() for name in county_names]
 
 # ax.legend() takes a list of handles and a list of labels corresponding to the objects you want to add to the legend
 handles = county_handles + town_handle + city_handle
@@ -136,5 +143,6 @@ gridlines = ax.gridlines(draw_labels=True,
 gridlines.left_labels = False
 gridlines.bottom_labels = False
 ax.set_extent([xmin, xmax, ymin, ymax], crs=myCRS)
+
 
 myFig.savefig('map.png', bbox_inches='tight', dpi=300)
