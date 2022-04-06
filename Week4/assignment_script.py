@@ -90,11 +90,11 @@ ax = plt.axes(projection=ccrs.Mercator())  # finally, create an axes object in t
 # first, we just add the outline of Northern Ireland using cartopy's ShapelyFeature
 #outline_feature = ShapelyFeature(outline['geometry'], myCRS, edgecolor='k', facecolor='w')
 
-xmin, ymin, xmax, ymax = outline.total_bounds
+#xmin, ymin, xmax, ymax = dataset.bounds
 #ax.add_feature(outline_feature) # add the features we've created to the map.
 
 # using the boundary of the shapefile features, zoom the map to our area of interest
-ax.set_extent([xmin, xmax, ymin, ymax], crs=myCRS) # because total_bounds gives output as xmin, ymin, xmax, ymax,
+#ax.set_extent([xmin, xmax, ymin, ymax], crs=myCRS) # because total_bounds gives output as xmin, ymin, xmax, ymax,
 # but set_extent takes xmin, xmax, ymin, ymax, we re-order the coordinates here.
 
 # pick colors, add features to the map
@@ -104,8 +104,7 @@ ax.set_extent([xmin, xmax, ymin, ymax], crs=myCRS) # because total_bounds gives 
 #county_names = list(counties.CountyName.unique())
 #county_names.sort()  # sort the counties alphabetically by name
 
-my_kwargs = {'extent': [xmin, xmax, ymin, ymax],
-             'transform': myCRS}
+my_kwargs = {'extent': [xmin, xmax, ymin, ymax], 'transform': myCRS}
 
 my_stretch = {'pmin': 0.1, 'pmax': 99.9}
 
@@ -130,6 +129,7 @@ town_handle = ax.plot(town.geometry.x, town.geometry.y, 's', color='b', ms=6, tr
 city_handle = ax.plot(city.geometry.x, city.geometry.y, 'D', color='m', ms=6, transform=myCRS)
 
 # generate a list of handles for the county datasets
+
 county_handles = generate_handles('counties', colors='0', edge='r', alpha=0)
 
 # update county_names to take it out of uppercase text
@@ -137,7 +137,7 @@ county_handles = generate_handles('counties', colors='0', edge='r', alpha=0)
 
 # ax.legend() takes a list of handles and a list of labels corresponding to the objects you want to add to the legend
 handles = county_handles + town_handle + city_handle
-labels = ['Counties', 'Town', 'City']
+labels = ['County boundaries', 'Town', 'City']
 
 leg = ax.legend(handles, labels, title='Legend', title_fontsize=14,
                  fontsize=12, loc='upper left', frameon=True, framealpha=1)
