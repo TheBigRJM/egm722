@@ -79,18 +79,21 @@ water = gpd.read_file(w2data_folder + 'Water.shp')
 rivers = gpd.read_file(w2data_folder + 'Rivers.shp')
 counties = gpd.read_file(w2data_folder + 'counties.shp')
 
+myCRS = ccrs.UTM(29) # note that this matches with the CRS of our image
+fig, ax = plt.subplots(1, 1, figsize=(10, 10), subplot_kw=dict(projection=myCRS))
+
 # create a figure of size 10x10 (representing the page size in inches)
-myFig = plt.figure(figsize=(10, 10))
+#myFig = plt.figure(figsize=(10, 10))
 
-myCRS = ccrs.UTM(29)  # create a Universal Transverse Mercator reference system to transform our data.
+#myCRS = ccrs.UTM(29)  # create a Universal Transverse Mercator reference system to transform our data.
 
-ax = plt.axes(projection=ccrs.Mercator())  # finally, create an axes object in the figure, using a Mercator
+#ax = plt.axes(projection=ccrs.Mercator())  # finally, create an axes object in the figure, using a Mercator
 # projection, where we can actually plot our data.
 
 # first, we just add the outline of Northern Ireland using cartopy's ShapelyFeature
 #outline_feature = ShapelyFeature(outline['geometry'], myCRS, edgecolor='k', facecolor='w')
 
-#xmin, ymin, xmax, ymax = dataset.bounds
+#xmin, ymin, xmax, ymax = img.bounds
 #ax.add_feature(outline_feature) # add the features we've created to the map.
 
 # using the boundary of the shapefile features, zoom the map to our area of interest
@@ -109,6 +112,7 @@ my_kwargs = {'extent': [xmin, xmax, ymin, ymax], 'transform': myCRS}
 my_stretch = {'pmin': 0.1, 'pmax': 99.9}
 
 h, ax = img_display(img, ax, [2, 1, 0], stretch_args=my_stretch, **my_kwargs)
+
 
 # next, add the municipal outlines to the map using the colors that we've picked.
 # here, we're iterating over the list of names we created above
@@ -151,4 +155,4 @@ gridlines.bottom_labels = False
 ax.set_extent([xmin, xmax, ymin, ymax], crs=myCRS)
 
 
-myFig.savefig('map.png', bbox_inches='tight', dpi=300)
+fig.savefig('map.png', bbox_inches='tight', dpi=300)
