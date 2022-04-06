@@ -104,6 +104,13 @@ ax.set_extent([xmin, xmax, ymin, ymax], crs=myCRS) # because total_bounds gives 
 #county_names = list(counties.CountyName.unique())
 #county_names.sort()  # sort the counties alphabetically by name
 
+my_kwargs = {'extent': [xmin, xmax, ymin, ymax],
+             'transform': myCRS}
+
+my_stretch = {'pmin': 0.1, 'pmax': 99.9}
+
+h, ax = img_display(img, ax, [2, 1, 0], stretch_args=my_stretch, **my_kwargs)
+
 # next, add the municipal outlines to the map using the colors that we've picked.
 # here, we're iterating over the list of names we created above
 # we're also setting the edge color to be black, with a line width of 0.5 pt.
@@ -119,19 +126,18 @@ ax.add_feature(counties)
 town = towns[towns['town_city'] == 0]
 city = towns[towns['town_city'] == 1]
 
-town_handle = ax.plot(town.geometry.x, town.geometry.y, 's', color='0.5', ms=6, transform=myCRS)
+town_handle = ax.plot(town.geometry.x, town.geometry.y, 's', color='b', ms=6, transform=myCRS)
 city_handle = ax.plot(city.geometry.x, city.geometry.y, 'D', color='m', ms=6, transform=myCRS)
 
 # generate a list of handles for the county datasets
-county_handles = generate_handles('counties', colors='0', edge='r', alpha=1)
-town_handle = generate_handles('s', colors='0.5', alpha=1)
+county_handles = generate_handles('counties', colors='0', edge='r', alpha=0)
 
 # update county_names to take it out of uppercase text
 #nice_names = [name.title() for name in county_names]
 
 # ax.legend() takes a list of handles and a list of labels corresponding to the objects you want to add to the legend
 handles = county_handles + town_handle + city_handle
-labels = ['Counties', 'Towns', 'Cities']
+labels = ['Counties', 'Town', 'City']
 
 leg = ax.legend(handles, labels, title='Legend', title_fontsize=14,
                  fontsize=12, loc='upper left', frameon=True, framealpha=1)
