@@ -10,7 +10,6 @@ plan:
 # create a polygon with the same geographic coverage as our raster image
 overlay = shapely.polygon([(xmin, ymin), (xmin, ymax), (xmax, ymax), (xmax, ymin)])
 
-# All intersections
-inter = cascaded_union([pair[0].intersection(pair[1]) for pair in combinations(shapes, 2)])
-# Remove from union of all shapes
+shapes = [overlay, NI_outline]
+inter = cascaded_union(shapes)
 nonoverlap = cascaded_union(shapes).difference(inter)
