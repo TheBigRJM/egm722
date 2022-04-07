@@ -122,7 +122,7 @@ counties = ShapelyFeature(counties['geometry'], myCRS,
                           edgecolor='r',
                           facecolor='none',
                           linewidth=1,
-                          alpha=1)
+                          alpha=0)
 ax.add_feature(counties)
 
 # ShapelyFeature creates a polygon, so for point data we can just use ax.plot()
@@ -138,6 +138,25 @@ county_handles = generate_handles('counties', colors='0', edge='r', alpha=0)
 
 # update county_names to take it out of uppercase text
 #nice_names = [name.title() for name in county_names]
+
+overlay = Polygon([((xmin), (ymin)), ((xmin), (ymax)), ((xmax), (ymax)), ((xmax), (ymin))]) # get polygon co-ordinates
+# from NI raster xy min/max values
+
+# transform overlay into shapely feature and assign visual parameters
+sqpoly = ShapelyFeature([overlay], myCRS,
+                        edgecolor='r',
+                        facecolor='white',
+                        linewidth=1,
+                        alpha=1)
+
+# add overlay to axis
+ax.add_feature(sqpoly)
+
+shapes = [counties , sqpoly]
+inter = cascaded_union(shapes)
+#nonoverlap = cascaded_union(shapes).difference(inter)
+
+
 
 # ax.legend() takes a list of handles and a list of labels corresponding to the objects you want to add to the legend
 handles = county_handles + town_handle + city_handle
