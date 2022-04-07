@@ -1,7 +1,16 @@
 Advice on using cascaded_union / unary_union
 https://gis.stackexchange.com/questions/11987/polygon-overlay-with-shapely
 
-Use shapely polygon creation (https://shapely.readthedocs.io/en/stable/manual.html#polygons) and the min/max x,y values for the NI_raster image 
-to produce a new polygon to act as an overlay
+Use shapely polygon creation (https://shapely.readthedocs.io/en/stable/manual.html#polygons) and the min/max x,y values for the NI_raster image to produce a new polygon to act as an overlay
 
 ax.imshow(img[3], cmap='gray', vmin=200, vmax=5000, transform=myCRS, extent=[xmin, xmax, ymin, ymax])
+The x,y values from the above (code line from practical 4 ipynb) should provide the necessary 
+
+plan:
+# create a polygon with the same geographic coverage as our raster image
+overlay = shapely.polygon([(xmin, ymin), (xmin, ymax), (xmax, ymax), (xmax, ymin)])
+
+# All intersections
+inter = cascaded_union([pair[0].intersection(pair[1]) for pair in combinations(shapes, 2)])
+# Remove from union of all shapes
+nonoverlap = cascaded_union(shapes).difference(inter)
