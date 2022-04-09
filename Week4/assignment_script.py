@@ -139,23 +139,27 @@ county_handles = generate_handles('counties', colors='0', edge='r', alpha=0)
 # update county_names to take it out of uppercase text
 #nice_names = [name.title() for name in county_names]
 
-overlay = Polygon([((xmin), (ymin)), ((xmin), (ymax)), ((xmax), (ymax)), ((xmax), (ymin))]) # get polygon co-ordinates
-# from NI raster xy min/max values
+# create a polygon using co-ordinates for NI raster xy min/max values to fill the axis to use as a background
+overlay = Polygon([((xmin), (ymin)), ((xmin), (ymax)), ((xmax), (ymax)), ((xmax), (ymin))])
+ovpol = {'geometry': [Polygon([((xmin), (ymin)), ((xmin), (ymax)), ((xmax), (ymax)), ((xmax), (ymin))])]}
+overlay = gpd.GeoDataFrame(ovpol)
 
 # transform overlay into shapely feature and assign visual parameters
 sqpoly = ShapelyFeature([overlay], myCRS,
                         edgecolor='r',
-                        facecolor='white',
+                        facecolor='white', # colour solid white
                         linewidth=1,
-                        alpha=1)
+                        alpha=0.5)  # make the background semi-transparent
 
-# add overlay to axis
+# add overlay to axis (only for testing result)
 ax.add_feature(sqpoly)
 
-shapes = [counties , sqpoly]
-inter = cascaded_union(shapes)
-#nonoverlap = cascaded_union(shapes).difference(inter)
+outline.geometry.apply(lambda geom: geom.coords)
 
+
+shapes = [sqpoly, counties] # assign county and sqpoly features to list 'shapes'
+inter = cascaded_union(shapes) # perform union on shapes to work out the overlap, assign to inter
+nonoverlap = cascaded_union(shapes).difference(inter) # remove areas of counties from sqpoly using difference??
 
 
 # ax.legend() takes a list of handles and a list of labels corresponding to the objects you want to add to the legend
