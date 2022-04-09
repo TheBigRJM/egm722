@@ -147,16 +147,17 @@ sqpoly = overlay
 ovpol = {'geometry': [Polygon([((xmin), (ymin)), ((xmin), (ymax)), ((xmax), (ymax)), ((xmax), (ymin))])]}
 overlay = gpd.GeoDataFrame(ovpol)
 overlay = overlay.set_crs(epsg=32629)
+
 #join = gpd.sjoin(outline, overlay)
 
-exout = outline.explode()
 
 overlay.intersection(exout, align=False)
 
-# retrieve co-ordinates from outline SHP file
-g = [i for i in outexp.geometry]
-x,y = g[0].exterior.coords.xy
-coords = np.dstack((x,y)).tolist()
+# get x,y values as list for outline of NI
+exout = outline.explode() # get individual polygon gems from multipolygon
+g = [i for i in exout.geometry] #  loop over rows to get values from geometry series
+x,y = g[0].exterior.coords.xy # split geometry into x and y series
+coords = np.dstack((x,y)).tolist() # stack x, y values ion sequence to form xy pairs and print to list
 
 
 geom = outline.exterior.xy
