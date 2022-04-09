@@ -151,6 +151,7 @@ overlay = overlay.set_crs(epsg=32629)
 
 exout = outline.explode()
 
+overlay.intersection(exout, align=False)
 
 # retrieve co-ordinates from outline SHP file
 g = [i for i in outexp.geometry]
