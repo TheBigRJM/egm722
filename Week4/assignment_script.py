@@ -132,6 +132,7 @@ city = towns[towns['town_city'] == 1]
 town_handle = ax.plot(town.geometry.x, town.geometry.y, 's', color='b', ms=6, transform=myCRS)
 city_handle = ax.plot(city.geometry.x, city.geometry.y, 'D', color='m', ms=6, transform=myCRS)
 
+
 # generate a list of handles for the county datasets
 
 county_handles = generate_handles('counties', colors='0', edge='r', alpha=0)
@@ -141,8 +142,26 @@ county_handles = generate_handles('counties', colors='0', edge='r', alpha=0)
 
 # create a polygon using co-ordinates for NI raster xy min/max values to fill the axis to use as a background
 overlay = Polygon([((xmin), (ymin)), ((xmin), (ymax)), ((xmax), (ymax)), ((xmax), (ymin))])
+sqpoly = overlay
+
 ovpol = {'geometry': [Polygon([((xmin), (ymin)), ((xmin), (ymax)), ((xmax), (ymax)), ((xmax), (ymin))])]}
 overlay = gpd.GeoDataFrame(ovpol)
+overlay = overlay.set_crs(epsg=32629)
+#join = gpd.sjoin(outline, overlay)
+
+exout = outline.explode()
+
+
+# retrieve co-ordinates from outline SHP file
+g = [i for i in outexp.geometry]
+x,y = g[0].exterior.coords.xy
+coords = np.dstack((x,y)).tolist()
+
+
+geom = outline.exterior.xy
+geometry = gpd.points_from_xy(coords['x'], coords['y'])
+
+
 
 # transform overlay into shapely feature and assign visual parameters
 sqpoly = ShapelyFeature([overlay], myCRS,
