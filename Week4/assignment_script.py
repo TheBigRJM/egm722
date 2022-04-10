@@ -124,6 +124,7 @@ counties = ShapelyFeature(counties['geometry'], myCRS,
                           linewidth=1,
                           alpha=0)
 ax.add_feature(counties)
+cascount = cascaded_union(counties)
 
 # ShapelyFeature creates a polygon, so for point data we can just use ax.plot()
 town = towns[towns['town_city'] == 0]
@@ -163,7 +164,7 @@ coords = np.dstack((x,y)).tolist() # stack x, y values ion sequence to form xy p
 geom = outline.exterior.xy
 geometry = gpd.points_from_xy(coords['x'], coords['y'])
 
-
+cascaded_union(counties)
 
 # transform overlay into shapely feature and assign visual parameters
 sqpoly = ShapelyFeature([overlay], myCRS,
