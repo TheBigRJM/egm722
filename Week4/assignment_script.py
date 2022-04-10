@@ -82,49 +82,12 @@ counties = gpd.read_file(w2data_folder + 'counties.shp')
 myCRS = ccrs.UTM(29) # note that this matches with the CRS of our image
 fig, ax = plt.subplots(1, 1, figsize=(10, 10), subplot_kw=dict(projection=myCRS))
 
-# create a figure of size 10x10 (representing the page size in inches)
-#myFig = plt.figure(figsize=(10, 10))
-
-#myCRS = ccrs.UTM(29)  # create a Universal Transverse Mercator reference system to transform our data.
-
-#ax = plt.axes(projection=ccrs.Mercator())  # finally, create an axes object in the figure, using a Mercator
-# projection, where we can actually plot our data.
-
-# first, we just add the outline of Northern Ireland using cartopy's ShapelyFeature
-#outline_feature = ShapelyFeature(outline['geometry'], myCRS, edgecolor='k', facecolor='w')
-
-#xmin, ymin, xmax, ymax = img.bounds
-#ax.add_feature(outline_feature) # add the features we've created to the map.
-
-# using the boundary of the shapefile features, zoom the map to our area of interest
-#ax.set_extent([xmin, xmax, ymin, ymax], crs=myCRS) # because total_bounds gives output as xmin, ymin, xmax, ymax,
-# but set_extent takes xmin, xmax, ymin, ymax, we re-order the coordinates here.
-
-# pick colors, add features to the map
-#county_colors = ['firebrick', 'seagreen', 'royalblue', 'coral', 'violet', 'cornsilk']
-
-# get a list of unique names for the county boundaries
-#county_names = list(counties.CountyName.unique())
-#county_names.sort()  # sort the counties alphabetically by name
-
+# Add NI image to axis
 my_kwargs = {'extent': [xmin, xmax, ymin, ymax], 'transform': myCRS}
 
 my_stretch = {'pmin': 0.1, 'pmax': 99.9}
 
 h, ax = img_display(img, ax, [2, 1, 0], stretch_args=my_stretch, **my_kwargs)
-
-
-# next, add the municipal outlines to the map using the colors that we've picked.
-# here, we're iterating over the list of names we created above
-# we're also setting the edge color to be black, with a line width of 0.5 pt.
-# Feel free to experiment with different colors and line widths.
-counties = ShapelyFeature(counties['geometry'], myCRS,
-                          edgecolor='r',
-                          facecolor='none',
-                          linewidth=1,
-                          alpha=0)
-ax.add_feature(counties)
-cascount = cascaded_union(counties)
 
 # ShapelyFeature creates a polygon, so for point data we can just use ax.plot()
 town = towns[towns['town_city'] == 0]
@@ -133,56 +96,29 @@ city = towns[towns['town_city'] == 1]
 town_handle = ax.plot(town.geometry.x, town.geometry.y, 's', color='b', ms=6, transform=myCRS)
 city_handle = ax.plot(city.geometry.x, city.geometry.y, 'D', color='m', ms=6, transform=myCRS)
 
-
-# generate a list of handles for the county datasets
-
-county_handles = generate_handles('counties', colors='0', edge='r', alpha=0)
-
 # update county_names to take it out of uppercase text
 #nice_names = [name.title() for name in county_names]
 
 # create a polygon using co-ordinates for NI raster xy min/max values to fill the axis to use as a background
-overlay = Polygon([((xmin), (ymin)), ((xmin), (ymax)), ((xmax), (ymax)), ((xmax), (ymin))])
-sqpoly = overlay
+border = Polygon([((xmin), (ymin)), ((xmin), (ymax)), ((xmax), (ymax)), ((xmax), (ymin))])
 
-ovpol = {'geometry': [Polygon([((xmin), (ymin)), ((xmin), (ymax)), ((xmax), (ymax)), ((xmax), (ymin))])]}
-overlay = gpd.GeoDataFrame(ovpol)
-overlay = overlay.set_crs(epsg=32629)
+union = cascaded_union(counties['geometry'].values) # Create a cascaded union of the counties of NI
 
-#join = gpd.sjoin(outline, overlay)
-
-
-overlay.intersection(exout, align=False)
-
-# get x,y values as list for outline of NI
-exout = outline.explode() # get individual polygon gems from multipolygon
-g = [i for i in exout.geometry] #  loop over rows to get values from geometry series
-x,y = g[0].exterior.coords.xy # split geometry into x and y series
-coords = np.dstack((x,y)).tolist() # stack x, y values ion sequence to form xy pairs and print to list
-
-
-geom = outline.exterior.xy
-geometry = gpd.points_from_xy(coords['x'], coords['y'])
-
-cascaded_union(counties)
-
-# transform overlay into shapely feature and assign visual parameters
-sqpoly = ShapelyFeature([overlay], myCRS,
+# remove areas of counties from border using union and transform to shapely feature.
+overlay = ShapelyFeature(border.symmetric_difference(union), myCRS,
                         edgecolor='r',
                         facecolor='white', # colour solid white
-                        linewidth=1,
                         alpha=0.5)  # make the background semi-transparent
 
-# add overlay to axis (only for testing result)
-ax.add_feature(sqpoly)
+# add the county outlines
+county_outlines = ShapelyFeature(counties['geometry'], myCRS, edgecolor='r', facecolor='none')
 
-outline.geometry.apply(lambda geom: geom.coords)
+# add overlay to axis
+ax.add_feature(overlay)
+ax.add_feature(county_outlines)
 
-
-shapes = [sqpoly, counties] # assign county and sqpoly features to list 'shapes'
-inter = cascaded_union(shapes) # perform union on shapes to work out the overlap, assign to inter
-nonoverlap = cascaded_union(shapes).difference(inter) # remove areas of counties from sqpoly using difference??
-
+# generate a list of handles for the county datasets
+county_handles = generate_handles([''], ['none'], edge='r')
 
 # ax.legend() takes a list of handles and a list of labels corresponding to the objects you want to add to the legend
 handles = county_handles + town_handle + city_handle
